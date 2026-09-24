@@ -1,0 +1,46 @@
+# A chamber music festival day: 3 rooms, 14 players, 13 pieces.
+#
+# Most players are in three or four groups, which is what makes the objective bite --
+# the order their calls are placed in decides how long they hang around between them.
+# Recital Hall closes 13:00-14:00 for a lunchtime concert and Studio C opens at 10:00.
+#
+# Ben is away 12:00-14:00. Any gap of his that falls inside that window is free: he is
+# not waiting around, he is elsewhere. That is the availability-aware objective at work.
+
+day: { start: "09:00", end: "17:00" }
+
+rooms:
+  Recital Hall: ["09:00-13:00", "14:00-17:00"]
+  Studio B: all
+  Studio C: ["10:00-17:00"]
+
+people:
+  Ana: all
+  Ben: ["09:00-12:00", "14:00-17:00"]
+  Cleo: ["09:00-15:00"]
+  Dev: all
+  Eli: all
+  Fay: all
+  Gus: ["11:00-17:00"]
+  Hana: all
+  Ivo: all
+  Jo: all
+  Kit: ["09:00-15:00"]
+  Lena: all
+  Milo: ["10:00-17:00"]
+  Nia: all
+
+pieces:
+  - { name: Brahms Quintet,     room: Recital Hall, slots: 3, players: [Ana, Ben, Cleo, Dev] }
+  - { name: Mozart K.581,       room: Recital Hall, slots: 2, players: [Eli, Fay, Gus, Hana] }
+  - { name: Dvorak Op.81,       room: Recital Hall, slots: 2, players: [Ana, Ivo, Jo, Kit] }
+  - { name: Poulenc Sextet,     room: Studio B,     slots: 3, players: [Ana, Fay, Lena, Milo, Nia] }
+  - { name: Ravel Trio,         room: Studio B,     slots: 2, players: [Dev, Hana, Lena] }
+  - { name: Shostakovich Op.57, room: Studio B,     slots: 2, players: [Ben, Hana, Jo, Kit] }
+  - { name: Schumann Op.44,     room: Studio B,     slots: 2, players: [Cleo, Dev, Kit, Milo] }
+  - { name: Messiaen Quatuor,   room: Studio C,     slots: 2, players: [Fay, Jo, Milo, Nia] }
+  - { name: Tchaikovsky Op.50,  room: Studio C,     slots: 2, players: [Ben, Eli, Lena] }
+  - { name: Smetana Trio,       room: Studio C,     slots: 2, players: [Cleo, Gus, Nia] }
+  - { name: Arensky Trio,       room: Studio C,     slots: 2, players: [Eli, Ivo, Kit] }
+  - { name: Franck Sonata,      room: Studio C,     slots: 1, players: [Gus, Lena] }
+  - { name: Bartok Contrasts,   room: Studio C,     slots: 1, players: [Ana, Ivo, Nia] }

@@ -1,0 +1,38 @@
+# A small, hand-checkable example.
+#
+# Ben is away 11:00-14:00. The Brahms and the Schubert both need him, so he must play
+# them either side of lunch -- but because he is *unavailable* in between, that gap
+# costs nothing. Ana, who is free all day, is the one the optimiser has to protect.
+
+day: { start: "09:00", end: "17:00" }
+
+rooms:
+  Recital Hall: ["09:00-12:00", "13:00-17:00"]
+  Studio B: all
+
+people:
+  Ana: all
+  Ben: ["09:00-11:00", "14:00-17:00"]
+  Cleo: ["09:00-13:00"]
+  Dev: all
+
+pieces:
+  - name: Brahms Op. 114
+    room: Recital Hall
+    slots: 3
+    players: [Ana, Ben]
+
+  - name: Schubert D.667
+    room: Recital Hall
+    slots: 2
+    players: [Ben, Dev]
+
+  - name: Mozart K.581
+    room: Studio B
+    slots: 2
+    players: [Ana, Cleo]
+
+  - name: Ravel Trio
+    room: Studio B
+    slots: 2
+    players: [Cleo, Dev]
