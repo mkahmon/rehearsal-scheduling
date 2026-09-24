@@ -12,13 +12,34 @@ import itertools
 import random
 
 import pytest
+from ortools.sat.python import cp_model
 
 from rehearsal.model import Assignment, idle_slots
-from rehearsal.solver import SolveOptions, solve
+from rehearsal.solver import SolveOptions, build_model, solve
 from rehearsal.starts import feasible_starts
 from tests.conftest import build
 
 FAST = SolveOptions(time_limit=10.0, workers=4, hint=True)
+
+
+def cpsat_objective(problem) -> int:
+    """The optimum of the CP-SAT objective expression itself.
+
+    Distinct from `Schedule.total_idle_slots`, which `solve` recomputes from the
+    placements with `idle_slots`. That recomputation makes the reported waiting time
+    correct even if the objective is off by a constant -- but the proven bound, the
+    reported gap and the `--gap` tolerance are all read straight off the objective, so
+    they are not protected. Asserting on this value is what pins the constant down.
+    """
+    domains = feasible_starts(problem)
+    built = build_model(problem, domains, hint=False)
+    built.model.minimize(built.idle_expr)
+    solver = cp_model.CpSolver()
+    solver.parameters.max_time_in_seconds = 10.0
+    solver.parameters.num_workers = 4
+    status = solver.solve(built.model)
+    assert status == cp_model.OPTIMAL, solver.status_name(status)
+    return round(solver.objective_value)
 
 
 def brute_force_best(problem):
@@ -91,3 +112,27 @@ def test_solver_matches_brute_force(seed):
     assert schedule is not None, "brute force found a schedule but the solver did not"
     assert schedule.proven_optimal
     assert schedule.total_idle_slots == expected
+    assert cpsat_objective(problem) == expected, "objective is off by a constant"
+
+
+def test_single_piece_player_does_not_offset_the_objective():
+    """Regression: `total_play` must only count players who get `within` variables.
+
+    It once summed over everyone while `within` variables were built only for players
+    with two or more pieces, so every one-piece player shifted the objective down by
+    their own duration. The chosen schedule stayed optimal -- a constant cannot move an
+    argmin -- which is why the brute-force check above passed regardless. What broke was
+    everything derived from the objective's scale: the printed bound understated itself,
+    and a negative optimum drove `Schedule.gap` negative, making any `--gap` succeed.
+    """
+    problem = build(
+        8,
+        {"R": None},
+        {"Pair": None, "Solo": None},
+        [("X", "R", 1, ["Pair"]), ("Y", "R", 1, ["Pair"]), ("Long", "R", 3, ["Solo"])],
+    )
+    assert cpsat_objective(problem) == 0
+
+    schedule = solve(problem, FAST)
+    assert schedule is not None and schedule.proven_optimal
+    assert schedule.gap == 0.0

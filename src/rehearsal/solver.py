@@ -99,11 +99,13 @@ def build_model(problem: Problem, domains: StartDomains, *, hint: bool = True) -
 
     for person_name, person in problem.people.items():
         theirs = problem.pieces_for_person(person_name)
+        if len(theirs) < 2:
+            # One piece (or none) can never produce a gap. Such a person contributes no
+            # `within` variables, so their play time must not enter `total_play` either
+            # -- it would offset the whole objective and, with it, the bound and the gap.
+            continue
         play = sum(p.duration for p in theirs)
         total_play += play
-        if len(theirs) < 2:
-            # One piece (or none) can never produce a gap.
-            continue
 
         # busy[t]: the start booleans that would put this person in a rehearsal at t.
         # Kept as plain term lists -- no auxiliary variable is needed.

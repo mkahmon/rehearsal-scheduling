@@ -23,3 +23,6 @@ packages = ["src/rehearsal"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# `tests` is not a package, so without this pytest puts tests/ on sys.path rather than
+# the project root and `from tests.conftest import build` cannot resolve.
+pythonpath = ["."]
